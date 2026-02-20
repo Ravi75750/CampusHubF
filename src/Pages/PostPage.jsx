@@ -78,6 +78,26 @@ export default function PostPage() {
         }
     };
 
+    const handleDeleteComment = async (postId, commentId) => {
+        if (!window.confirm("Delete this comment?")) return;
+        try {
+            const res = await api.delete(`/social/posts/${postId}/comments/${commentId}`);
+            setPost(res.data);
+        } catch (err) {
+            console.error("Failed to delete comment", err);
+        }
+    };
+
+    const handleDeleteReply = async (postId, commentId, replyId) => {
+        if (!window.confirm("Delete this reply?")) return;
+        try {
+            const res = await api.delete(`/social/posts/${postId}/comments/${commentId}/replies/${replyId}`);
+            setPost(res.data);
+        } catch (err) {
+            console.error("Failed to delete reply", err);
+        }
+    };
+
     if (loading) return <div className="flex justify-center items-center  min-h-[50vh] text-white">Loading...</div>;
     if (error) return <div className="flex justify-center items-center min-h-[50vh] text-red-500">{error}</div>;
 
@@ -99,6 +119,8 @@ export default function PostPage() {
                     onSave={handleSave}
                     onAddComment={handleAddComment}
                     onReply={handleReply}
+                    onDeleteComment={handleDeleteComment}
+                    onDeleteReply={handleDeleteReply}
                 />
             )}
         </div>

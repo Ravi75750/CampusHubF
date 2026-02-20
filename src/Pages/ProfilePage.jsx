@@ -223,6 +223,26 @@ export default function ProfilePage() {
     }
   }
 
+  async function handleDeleteComment(postId, commentId) {
+    if (!confirm("Delete this comment?")) return;
+    try {
+      await api.delete(`/posts/${postId}/comments/${commentId}`);
+      fetchUserPosts();
+    } catch (err) {
+      setToast({ message: "Failed to delete comment", type: 'error' });
+    }
+  }
+
+  async function handleDeleteReply(postId, commentId, replyId) {
+    if (!confirm("Delete this reply?")) return;
+    try {
+      await api.delete(`/posts/${postId}/comments/${commentId}/replies/${replyId}`);
+      fetchUserPosts();
+    } catch (err) {
+      setToast({ message: "Failed to delete reply", type: 'error' });
+    }
+  }
+
   async function handleDeletePost(postId) {
     if (!confirm("Delete this post?")) return;
     try {
@@ -398,6 +418,8 @@ export default function ProfilePage() {
                       onEdit={() => { }} // Not implementing global edit modal here yet for simplicity, or could pass prop
                       onReport={() => alert("Reported")}
                       onSave={handleSavePost}
+                      onDeleteComment={handleDeleteComment}
+                      onDeleteReply={handleDeleteReply}
                     />
                   </div>
                 ))
