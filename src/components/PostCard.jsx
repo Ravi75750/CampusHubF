@@ -41,7 +41,9 @@ export default function PostCard({
     onReport,
     onSave,
     onAddComment,
-    onReply
+    onReply,
+    onDeleteComment,
+    onDeleteReply
 }) {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isCommentsOpen, setIsCommentsOpen] = useState(false);
@@ -233,6 +235,14 @@ export default function PostCard({
                                         >
                                             Reply
                                         </button>
+                                        {(currentUser && (comment.author?._id === currentUser.id || comment.author?._id === currentUser._id || currentUser.role === 'Admin')) && (
+                                            <button
+                                                onClick={() => onDeleteComment(post._id, comment._id)}
+                                                className="text-xs text-red-500 hover:text-red-700 font-medium"
+                                            >
+                                                Delete
+                                            </button>
+                                        )}
                                         <span className="text-xs text-slate-400">{timeAgo(comment.createdAt)}</span>
                                     </div>
 
@@ -266,8 +276,16 @@ export default function PostCard({
                                                             <span className="font-bold text-xs block dark:text-white">{reply.author?.name}</span>
                                                             <span className="text-xs text-slate-600 dark:text-slate-400">{reply.text}</span>
                                                         </div>
-                                                        <div className="ml-2">
+                                                        <div className="ml-2 flex items-center gap-3">
                                                             <span className="text-xs text-slate-400">{timeAgo(reply.createdAt)}</span>
+                                                            {(currentUser && (reply.author?._id === currentUser.id || reply.author?._id === currentUser._id || currentUser.role === 'Admin')) && (
+                                                                <button
+                                                                    onClick={() => onDeleteReply(post._id, comment._id, reply._id)}
+                                                                    className="text-xs text-red-500 hover:text-red-700 font-medium"
+                                                                >
+                                                                    Delete
+                                                                </button>
+                                                            )}
                                                         </div>
                                                     </div>
                                                 </div>

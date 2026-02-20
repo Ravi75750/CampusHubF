@@ -180,6 +180,26 @@ export default function FeedPage() {
     }
   }
 
+  async function handleDeleteComment(postId, commentId) {
+    if (!confirm("Delete this comment?")) return;
+    try {
+      await api.delete(`/posts/${postId}/comments/${commentId}`);
+      setRefresh(prev => prev + 1);
+    } catch (err) {
+      alert("Failed to delete comment");
+    }
+  }
+
+  async function handleDeleteReply(postId, commentId, replyId) {
+    if (!confirm("Delete this reply?")) return;
+    try {
+      await api.delete(`/posts/${postId}/comments/${commentId}/replies/${replyId}`);
+      setRefresh(prev => prev + 1);
+    } catch (err) {
+      alert("Failed to delete reply");
+    }
+  }
+
   async function handleUpdatePost() {
     if (!editingPost || !editingPost.text.trim()) return;
     try {
@@ -292,6 +312,8 @@ export default function FeedPage() {
                 onEdit={setEditingPost}
                 onReport={(p) => openReportModal('post', p._id)}
                 onSave={handleSavePost}
+                onDeleteComment={handleDeleteComment}
+                onDeleteReply={handleDeleteReply}
               />
             ))}
           </div>
