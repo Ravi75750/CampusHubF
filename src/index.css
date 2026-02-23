@@ -3,6 +3,9 @@
 @theme {
   --font-sans: 'Outfit', sans-serif;
   --font-display: 'cal', sans-serif;
+  --breakpoint-3xl: 1920px;
+  --breakpoint-4xl: 2560px;
+  --breakpoint-5xl: 3840px;
 }
 
 :root {
@@ -24,6 +27,23 @@
   body {
     @apply bg-[#6dd3cb] text-[#909cc0] dark:bg-[#70aab3] dark:text-slate-50;
     font-family: 'Outfit', sans-serif;
+  }
+
+  /* Scale base font size for larger displays */
+  @media (min-width: 1920px) {
+    html {
+      font-size: 18px;
+    }
+  }
+  @media (min-width: 2560px) {
+    html {
+      font-size: 20px;
+    }
+  }
+  @media (min-width: 3840px) {
+    html {
+      font-size: 24px;
+    }
   }
 }
 

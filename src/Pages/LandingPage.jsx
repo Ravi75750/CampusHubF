@@ -36,7 +36,7 @@ const LandingPage = () => {
                 {!showLogin && (
                     <div className="text-center animate-fade-in mt-20">
                         {/* Explore Button moved downward */}
-                        <p className="text-[60px] font-bold text-[#0096e1] mb-4
+                        <p className="text-[60px] 3xl:text-[80px] 4xl:text-[100px] 5xl:text-[120px] font-bold text-[#0096e1] mb-4
   [text-shadow:1px_1px_0_#fff,-1px_1px_0_#fff,1px_-1px_0_#fff,-1px_-1px_0_#fff]">
                             “A place for voices, ideas, and opportunities.”
                         </p>

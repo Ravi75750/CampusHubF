@@ -159,7 +159,7 @@ export default function Navbar({ transparent }) {
           : "bg-white/10 backdrop-blur-md border-white/10 text-white"}
       `}
     >
-      <div className="max-w-7xl mx-auto px-4 py-3">
+      <div className="max-w-7xl 3xl:max-w-[1600px] 4xl:max-w-[2000px] 5xl:max-w-[2800px] mx-auto px-4 py-3">
         <div className="flex items-center justify-between">
 
           {/* Logo */}

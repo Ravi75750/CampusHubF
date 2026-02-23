@@ -2,15 +2,36 @@ import { useEffect, useState } from "react";
 import { api } from "../api.js";
 import { useAuth } from "../context/AuthContext.jsx";
 
+/* ---------- ICONS ---------- */
+const DashboardIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="7" height="9" x="3" y="3" rx="1" /><rect width="7" height="5" x="14" y="3" rx="1" /><rect width="7" height="9" x="14" y="12" rx="1" /><rect width="7" height="5" x="3" y="16" rx="1" /></svg>
+);
+const ReportIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 9v4" /><path d="M12 17h.01" /><path d="m4.84 21 8.1-14a2 2 0 0 1 3.42 0l8.1 14A2 2 0 0 1 21.08 24H2.92a2 2 0 0 1-1.66-3Z" /><path d="m3 21 8.1-14a2 2 0 0 1 3.42 0l8.1 14" /></svg>
+);
+const UserIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M22 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg>
+);
+const BanIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><path d="m4.93 4.93 14.14 14.14" /></svg>
+);
+const TrashIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18" /><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" /><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" /><line x1="10" x2="10" y1="11" y2="17" /><line x1="14" x2="14" y1="11" y2="17" /></svg>
+);
+const ComplaintIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /><line x1="16" x2="8" y1="13" y2="13" /><line x1="16" x2="8" y1="17" y2="17" /><polyline points="10 9 9 9 8 9" /></svg>
+);
+
 export default function AdminPanelPage() {
   const { user, logout } = useAuth();
-  const [activeTab, setActiveTab] = useState("users");
+  const [activeView, setActiveView] = useState("dashboard"); // sidebar selection
 
   // State
   const [users, setUsers] = useState([]);
   const [pendingTeachers, setPendingTeachers] = useState([]);
   const [notices, setNotices] = useState([]);
-  const [reports, setReports] = useState({ posts: [], users: [] });
+  const [reportsData, setReportsData] = useState({ posts: [], users: [], teacherComplaints: [], studentComplaints: [] });
+  const [archivedPosts, setArchivedPosts] = useState([]);
 
   // Forms
   const [newStudent, setNewStudent] = useState({ name: "", email: "", password: "", course: "BCA", idCardNumber: "" });
@@ -19,17 +40,17 @@ export default function AdminPanelPage() {
   useEffect(() => {
     if (!user || user.role !== "Admin") return;
     refreshData();
-  }, [user, activeTab]);
+  }, [user, activeView]);
 
   function refreshData() {
-    if (activeTab === "users") api.get("/admin/users").then(res => setUsers(res.data));
-    if (activeTab === "approvals") api.get("/admin/pending-teachers").then(res => setPendingTeachers(res.data));
-    if (activeTab === "notices") api.get("/admin/notices").then(res => setNotices(res.data));
-    if (activeTab === "reports") api.get("/admin/reports").then(res => setReports(res.data));
+    api.get("/admin/users").then(res => setUsers(res.data));
+    api.get("/admin/pending-teachers").then(res => setPendingTeachers(res.data));
+    api.get("/admin/notices").then(res => setNotices(res.data));
+    api.get("/admin/reports").then(res => setReportsData(res.data));
+    api.get("/admin/archived-posts").then(res => setArchivedPosts(res.data));
   }
 
   // --- Actions ---
-
   async function approveTeacher(id) {
     if (!window.confirm("Approve this teacher account?")) return;
     try { await api.patch(`/admin/approve-teacher/${id}`); refreshData(); } catch (err) { alert("Failed"); }
@@ -66,163 +87,315 @@ export default function AdminPanelPage() {
     try { await api.post("/moderation/unban", { userId: id }); alert("User unbanned"); refreshData(); } catch (err) { alert("Failed"); }
   }
 
+  async function restorePost(id) {
+    if (!window.confirm("Restore this post?")) return;
+    try { await api.patch(`/admin/restore-post/${id}`); refreshData(); } catch (err) { alert("Restored"); }
+  }
+
   if (!user || user.role !== "Admin") return <div className="p-4">Admin access required.</div>;
 
+  const sidebarItems = [
+    { id: "dashboard", label: "Dashboard", icon: <DashboardIcon /> },
+    { id: "reports", label: "Reports", icon: <ReportIcon /> },
+    { id: "teacher-complaints", label: "Teacher's Complaint", icon: <ComplaintIcon /> },
+    { id: "student-complaints", label: "Student Complaint", icon: <UserIcon /> },
+    { id: "banned", label: "Banned", icon: <BanIcon /> },
+    { id: "deleted", label: "Deleted", icon: <TrashIcon /> },
+  ];
+
   return (
-    <div className="max-w-6xl mx-auto p-4 pt-24 min-h-screen">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Admin Dashboard</h1>
-        <button onClick={logout} className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-medium transition-colors">
-          Logout
-        </button>
-      </div>
+    <div className="flex min-h-screen bg-slate-50 dark:bg-slate-950 pt-16">
 
-      {/* Tabs */}
-      <div className="flex border-b border-slate-200 dark:border-slate-700 mb-6">
-        {["users", "approvals", "notices", "reports"].map(tab => (
-          <button key={tab}
-            onClick={() => setActiveTab(tab)}
-            className={`px-4 py-2 capitalize font-medium transition-colors ${activeTab === tab ? "border-b-2 border-indigo-600 text-indigo-600 dark:text-indigo-400" : "text-slate-500 hover:text-slate-700"}`}
-          >
-            {tab}
-          </button>
-        ))}
-      </div>
-
-      {/* Approvals Tab */}
-      {activeTab === "approvals" && (
-        <div>
-          <h2 className="text-lg font-semibold mb-3">Pending Teacher Approvals</h2>
-          {pendingTeachers.length === 0 ? <p className="text-slate-500">No pending approvals.</p> : (
-            <div className="overflow-x-auto rounded-lg border border-slate-200 dark:border-slate-700">
-              <table className="w-full text-sm">
-                <thead><tr className="bg-slate-50 dark:bg-slate-800"><th className="p-3 text-left">Name</th><th className="p-3 text-left">Email</th><th className="p-3 text-left">Mobile</th><th className="p-3">Action</th></tr></thead>
-                <tbody>
-                  {pendingTeachers.map(t => (
-                    <tr key={t._id} className="border-t border-slate-200 dark:border-slate-700">
-                      <td className="p-3">{t.name}</td><td className="p-3">{t.email}</td><td className="p-3">{t.mobileNumber}</td>
-                      <td className="p-3"><button onClick={() => approveTeacher(t._id)} className="text-green-600 hover:underline">Approve</button></td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
+      {/* Sidebar */}
+      <aside className="w-64 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col sticky top-16 h-[calc(100vh-64px)] overflow-y-auto">
+        <div className="p-4 border-b border-slate-100 dark:border-slate-800 mb-2">
+          <h2 className="text-xs font-bold uppercase tracking-wider text-slate-400">Admin Controls</h2>
         </div>
-      )}
+        <nav className="flex-1 px-2 space-y-1 py-4">
+          {sidebarItems.map(item => (
+            <button
+              key={item.id}
+              onClick={() => setActiveView(item.id)}
+              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${activeView === item.id
+                  ? "bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400"
+                  : "text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800"
+                }`}
+            >
+              <span className={activeView === item.id ? "text-indigo-500" : "text-slate-400"}>{item.icon}</span>
+              {item.label}
+            </button>
+          ))}
+        </nav>
+        <div className="p-4 border-t border-slate-100 dark:border-slate-800">
+          <button onClick={logout} className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-red-600 hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" x2="9" y1="12" y2="12" /></svg>
+            Logout
+          </button>
+        </div>
+      </aside>
 
-      {/* Notices Tab */}
-      {activeTab === "notices" && (
-        <div className="grid md:grid-cols-3 gap-6">
-          <div className="md:col-span-1 border p-4 rounded-lg bg-white dark:bg-slate-800">
-            <h3 className="font-semibold mb-3">Post New Notice</h3>
-            <form onSubmit={createNotice} className="flex flex-col gap-3">
-              <input className="input-field" placeholder="Title" value={newNotice.title} onChange={e => setNewNotice({ ...newNotice, title: e.target.value })} required />
-              <textarea className="input-field" placeholder="Content" value={newNotice.content} onChange={e => setNewNotice({ ...newNotice, content: e.target.value })} required />
-              <label className="flex items-center gap-2"><input type="checkbox" checked={newNotice.important} onChange={e => setNewNotice({ ...newNotice, important: e.target.checked })} /> Important?</label>
-              <button className="btn-primary py-2">Post Notice</button>
-            </form>
+      {/* Main Content */}
+      <main className="flex-1 p-8">
+        <header className="mb-8 flex justify-between items-center">
+          <div>
+            <h1 className="text-2xl font-bold text-slate-900 dark:text-white capitalize">{activeView.replace("-", " ")}</h1>
+            <p className="text-sm text-slate-500 mt-1">Manage and monitor platform activity.</p>
           </div>
-          <div className="md:col-span-2">
-            <h3 className="font-semibold mb-3">Active Notices</h3>
-            <div className="space-y-3">
-              {notices.map(n => (
-                <div key={n._id} className="p-3 border rounded bg-white dark:bg-slate-800 flex justify-between items-start">
-                  <div>
-                    <div className="font-bold flex items-center gap-2">{n.important && <span className="bg-red-100 text-red-600 text-xs px-1 rounded">IMPORTANT</span>} {n.title}</div>
-                    <div className="text-sm text-slate-600 dark:text-slate-400">{n.content}</div>
+          <div className="text-xs text-slate-400 bg-white dark:bg-slate-900 px-3 py-1.5 rounded-full border border-slate-200 dark:border-slate-800">
+            Logged in as <b>{user.name}</b>
+          </div>
+        </header>
+
+        {/* Dashboard View (Users, Approvals, Notices) */}
+        {activeView === "dashboard" && (
+          <div className="space-y-8">
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="p-6 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+                <h3 className="text-sm font-bold text-slate-400 uppercase mb-4">Users Overview</h3>
+                <div className="flex items-end gap-2">
+                  <span className="text-4xl font-bold text-slate-900 dark:text-white">{users.length}</span>
+                  <span className="text-sm text-slate-500 mb-1">Total Members</span>
+                </div>
+              </div>
+              <div className="p-6 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+                <h3 className="text-sm font-bold text-slate-400 uppercase mb-4">Pending Approvals</h3>
+                <div className="flex items-end gap-2">
+                  <span className="text-4xl font-bold text-orange-500">{pendingTeachers.length}</span>
+                  <span className="text-sm text-slate-500 mb-1">Teachers awaiting</span>
+                </div>
+              </div>
+              <div className="p-6 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+                <h3 className="text-sm font-bold text-slate-400 uppercase mb-4">Active Notices</h3>
+                <div className="flex items-end gap-2">
+                  <span className="text-4xl font-bold text-indigo-500">{notices.length}</span>
+                  <span className="text-sm text-slate-500 mb-1">Announcements</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="grid lg:grid-cols-3 gap-8">
+              <div className="lg:col-span-2 space-y-6">
+                <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm">
+                  <div className="p-4 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
+                    <h3 className="font-bold">Recent Users</h3>
+                    <button className="text-xs text-indigo-500 hover:underline">View All</button>
                   </div>
-                  <button onClick={() => deleteNotice(n._id)} className="text-red-500 text-sm">Delete</button>
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-sm">
+                      <thead className="bg-slate-50 dark:bg-slate-800 text-slate-500">
+                        <tr>
+                          <th className="px-4 py-3 text-left">User</th>
+                          <th className="px-4 py-3 text-left">Role</th>
+                          <th className="px-4 py-3 text-center">Status</th>
+                          <th className="px-4 py-3 text-right">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                        {users.slice(0, 10).map(u => (
+                          <tr key={u._id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors">
+                            <td className="px-4 py-3 font-medium text-slate-900 dark:text-white">
+                              {u.name}
+                              <div className="text-xs font-normal text-slate-400">{u.email}</div>
+                            </td>
+                            <td className="px-4 py-3">
+                              <span className={`px-2 py-0.5 rounded-full text-[10px] uppercase font-bold ${u.role === 'Teacher' ? "bg-purple-100 text-purple-600" : "bg-blue-100 text-blue-600"
+                                }`}>{u.role}</span>
+                            </td>
+                            <td className="px-4 py-3 text-center">
+                              {u.isBanned ? <span className="text-red-500">Banned</span> : <span className="text-green-500">Active</span>}
+                            </td>
+                            <td className="px-4 py-3 text-right">
+                              <button onClick={() => deleteUser(u._id)} className="text-red-400 hover:text-red-600">Delete</button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+              <div className="space-y-6">
+                <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm">
+                  <h3 className="font-bold mb-4">Create Student</h3>
+                  <form onSubmit={createStudent} className="space-y-3">
+                    <input className="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-800 border-none rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="Name" value={newStudent.name} onChange={e => setNewStudent({ ...newStudent, name: e.target.value })} required />
+                    <input className="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-800 border-none rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="Email" value={newStudent.email} onChange={e => setNewStudent({ ...newStudent, email: e.target.value })} required />
+                    <input className="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-800 border-none rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="Password" value={newStudent.password} onChange={e => setNewStudent({ ...newStudent, password: e.target.value })} required />
+                    <select className="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-800 border-none rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none" value={newStudent.course} onChange={e => setNewStudent({ ...newStudent, course: e.target.value })}>
+                      <option>BCA</option><option>MCA</option><option>Tally</option><option>ADCA</option><option>DCA</option>
+                    </select>
+                    <input className="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-800 border-none rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="ID Card No." value={newStudent.idCardNumber} onChange={e => setNewStudent({ ...newStudent, idCardNumber: e.target.value })} required />
+                    <button className="w-full py-2.5 bg-indigo-600 text-white rounded-xl font-bold shadow-lg shadow-indigo-500/20 hover:scale-[1.02] transition-transform">Create</button>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Reports View */}
+        {activeView === "reports" && (
+          <div className="space-y-8">
+            <section>
+              <h3 className="text-lg font-bold mb-4 text-slate-800 dark:text-slate-200">Reported Content (Detailed)</h3>
+              <div className="grid gap-4">
+                {reportsData.posts.map(post => (
+                  <div key={post._id} className="p-5 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col md:flex-row justify-between gap-4">
+                    <div className="flex-1">
+                      <div className="text-xs font-bold text-indigo-500 uppercase mb-1">Post ID: {post._id}</div>
+                      <p className="text-slate-700 dark:text-slate-300 font-medium">"{post.text || post.content}"</p>
+                      <div className="mt-3 flex flex-wrap gap-2">
+                        {post.reports.map((r, i) => (
+                          <span key={i} className="px-2 py-1 bg-red-50 dark:bg-red-900/10 text-red-600 text-[10px] rounded-lg border border-red-100 dark:border-red-900/30">
+                            {r.reason} (by {r.reporterId?.name})
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="flex gap-2 items-center">
+                      <button className="px-4 py-2 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl text-sm font-bold hover:bg-slate-200 transition-colors">Dismiss</button>
+                      <button onClick={() => { /* ban logic */ }} className="px-4 py-2 bg-red-600 text-white rounded-xl text-sm font-bold shadow-lg shadow-red-500/20">Action</button>
+                    </div>
+                  </div>
+                ))}
+                {reportsData.posts.length === 0 && <p className="text-slate-500">No reports at this time.</p>}
+              </div>
+            </section>
+          </div>
+        )}
+
+        {/* Teacher's Complaints */}
+        {activeView === "teacher-complaints" && (
+          <div className="space-y-6">
+            <div className="grid gap-4">
+              {reportsData.teacherComplaints.map(report => (
+                <div key={report._id} className="p-6 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+                  <div className="flex justify-between items-start mb-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold">T</div>
+                      <div>
+                        <div className="font-bold text-slate-900 dark:text-slate-100">{report.reporter?.name}</div>
+                        <div className="text-xs text-slate-500">Teacher • {new Date(report.createdAt).toLocaleDateString()}</div>
+                      </div>
+                    </div>
+                    <span className={`px-2 py-1 rounded-lg text-[10px] font-bold uppercase ${report.status === 'Pending' ? "bg-orange-100 text-orange-600" : "bg-green-100 text-green-600"
+                      }`}>{report.status}</span>
+                  </div>
+                  <p className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl text-sm text-slate-700 dark:text-slate-300 italic mb-4">
+                    "{report.description || report.reason}"
+                  </p>
+                  <div className="flex justify-between items-center text-xs">
+                    <span className="text-slate-400">Target Type: <b>{report.targetType}</b></span>
+                    <div className="flex gap-2">
+                      <button className="text-indigo-500 hover:underline">View Details</button>
+                      <button className="text-green-500 hover:underline">Mark Solved</button>
+                    </div>
+                  </div>
                 </div>
               ))}
+              {reportsData.teacherComplaints.length === 0 && <p className="text-slate-500">No teacher complaints found.</p>}
             </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* Users Tab */}
-      {activeTab === "users" && (
-        <div className="grid md:grid-cols-3 gap-6">
-          <div className="md:col-span-1 border p-4 rounded-lg bg-white dark:bg-slate-800 h-fit">
-            <h3 className="font-semibold mb-3">Create Student</h3>
-            <form onSubmit={createStudent} className="flex flex-col gap-3">
-              <input className="input-field" placeholder="Name" value={newStudent.name} onChange={e => setNewStudent({ ...newStudent, name: e.target.value })} required />
-              <input className="input-field" placeholder="Email" value={newStudent.email} onChange={e => setNewStudent({ ...newStudent, email: e.target.value })} required />
-              <input className="input-field" placeholder="Password" value={newStudent.password} onChange={e => setNewStudent({ ...newStudent, password: e.target.value })} required />
-              <select className="input-field" value={newStudent.course} onChange={e => setNewStudent({ ...newStudent, course: e.target.value })}>
-                <option>BCA</option><option>MCA</option><option>Tally</option><option>ADCA</option><option>DCA</option>
-              </select>
-              <input className="input-field" placeholder="ID Card No." value={newStudent.idCardNumber} onChange={e => setNewStudent({ ...newStudent, idCardNumber: e.target.value })} required />
-              <button className="btn-primary py-2">Create Student</button>
-            </form>
-          </div>
-          <div className="md:col-span-2">
-            <h3 className="font-semibold mb-3">All Users</h3>
-            <div className="overflow-x-auto rounded-lg border border-slate-200 dark:border-slate-700">
-              <table className="w-full text-sm">
-                <thead><tr className="bg-slate-50 dark:bg-slate-800"><th className="p-3 text-left">Name</th><th className="p-3 text-left">Role</th><th className="p-3 text-left">Status</th><th className="p-3">Actions</th></tr></thead>
-                <tbody>
-                  {users.map(u => (
-                    <tr key={u._id} className="border-t border-slate-200 dark:border-slate-700">
-                      <td className="p-3">{u.name} <div className="text-xs text-slate-500">{u.email}</div></td>
-                      <td className="p-3">{u.role}</td>
-                      <td className="p-3">{u.isBanned ? <span className="text-red-600">Banned</span> : "Active"}</td>
-                      <td className="p-3 flex gap-2">
-                        {u.isBanned ? (
-                          <button onClick={() => unbanUser(u._id)} className="text-green-600 hover:underline">Unban</button>
-                        ) : (
-                          <button onClick={() => banUser(u._id)} className="text-orange-600 hover:underline">Ban</button>
-                        )}
-                        <button onClick={() => deleteUser(u._id)} className="text-red-600 hover:underline">Delete</button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+        {/* Student Complaints */}
+        {activeView === "student-complaints" && (
+          <div className="space-y-6">
+            <div className="grid gap-4">
+              {reportsData.studentComplaints.map(report => (
+                <div key={report._id} className="p-6 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+                  <div className="flex justify-between items-start mb-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold">S</div>
+                      <div>
+                        <div className="font-bold text-slate-900 dark:text-slate-100">{report.reporter?.name}</div>
+                        <div className="text-xs text-slate-500">Student • {new Date(report.createdAt).toLocaleDateString()}</div>
+                      </div>
+                    </div>
+                    <span className="px-2 py-1 bg-red-100 text-red-600 rounded-lg text-[10px] font-bold uppercase">{report.reason}</span>
+                  </div>
+                  <p className="border-l-4 border-slate-200 dark:border-slate-700 pl-4 py-1 text-sm text-slate-600 dark:text-slate-400 mb-4 line-clamp-2">
+                    {report.description || "No additional details provided."}
+                  </p>
+                  <div className="flex justify-end gap-3">
+                    <button className="px-4 py-1.5 bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-lg text-xs font-semibold">Dismiss</button>
+                    <button className="px-4 py-1.5 bg-indigo-600 text-white rounded-lg text-xs font-semibold">Resolve</button>
+                  </div>
+                </div>
+              ))}
+              {reportsData.studentComplaints.length === 0 && <p className="text-slate-500">No student complaints found.</p>}
             </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* Reports Tab */}
-      {activeTab === "reports" && (
-        <div className="space-y-6">
-          <div>
-            <h3 className="font-semibold mb-3">Reported Posts</h3>
-            {reports.posts.length === 0 && <p className="text-slate-500">No reported posts.</p>}
-            {reports.posts.map(post => (
-              <div key={post._id} className="p-3 border rounded mb-2 bg-white dark:bg-slate-800">
-                <p className="font-medium">Post Content: {post.content}</p>
-                <div className="mt-2 text-sm bg-red-50 dark:bg-red-900/20 p-2 rounded">
-                  <strong>Reports:</strong>
-                  {post.reports.map((r, i) => (
-                    <div key={i}>- {r.reason} (by {r.reporterId?.name || "Unknown"})</div>
-                  ))}
+        {/* Banned View */}
+        {activeView === "banned" && (
+          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden text-sm">
+            <table className="w-full">
+              <thead className="bg-slate-50 dark:bg-slate-800">
+                <tr>
+                  <th className="px-6 py-4 text-left font-bold text-slate-500">User</th>
+                  <th className="px-6 py-4 text-left font-bold text-slate-500">Ban Duration</th>
+                  <th className="px-6 py-4 text-right font-bold text-slate-500">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                {users.filter(u => u.isBanned).map(u => (
+                  <tr key={u._id} className="hover:bg-red-50/10 transition-colors">
+                    <td className="px-6 py-4">
+                      <div className="font-bold">{u.name}</div>
+                      <div className="text-xs text-slate-400">{u.email}</div>
+                    </td>
+                    <td className="px-6 py-4">
+                      {u.banExpiresAt ? (
+                        <span className="text-orange-500">Expires {new Date(u.banExpiresAt).toLocaleDateString()}</span>
+                      ) : (
+                        <span className="text-red-600 font-bold uppercase text-[10px]">Permanent</span>
+                      )}
+                    </td>
+                    <td className="px-6 py-4 text-right">
+                      <button onClick={() => unbanUser(u._id)} className="text-green-600 font-bold hover:underline">Unban User</button>
+                    </td>
+                  </tr>
+                ))}
+                {users.filter(u => u.isBanned).length === 0 && (
+                  <tr><td colSpan="3" className="p-8 text-center text-slate-500 italic">No banned users currently.</td></tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        )}
+
+        {/* Deleted View (Archived Posts) */}
+        {activeView === "deleted" && (
+          <div className="grid gap-6">
+            {archivedPosts.map(post => (
+              <div key={post._id} className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm border-l-4 border-l-red-500">
+                <div className="flex justify-between items-start mb-4">
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-xs">P</div>
+                    <span className="font-bold text-slate-900 dark:text-slate-100">Post by {post.author?.name}</span>
+                  </div>
+                  <span className="text-[10px] text-slate-400">Archived {new Date(post.updatedAt).toLocaleDateString()}</span>
+                </div>
+                <p className="text-slate-600 dark:text-slate-400 text-sm mb-6">
+                  {post.text || post.content}
+                </p>
+                <div className="flex justify-end gap-3">
+                  <button onClick={() => restorePost(post._id)} className="text-xs bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 px-4 py-2 rounded-xl font-bold">Restore Post</button>
+                  <button className="text-xs bg-red-100 dark:bg-red-900/20 text-red-600 dark:text-red-400 px-4 py-2 rounded-xl font-bold">Permanent Delete</button>
                 </div>
               </div>
             ))}
-          </div>
-          <div className="border-t pt-4">
-            <h3 className="font-semibold mb-3">Reported Users</h3>
-            {reports.users.length === 0 && <p className="text-slate-500">No reported users.</p>}
-            {reports.users.map(u => (
-              <div key={u._id} className="p-3 border rounded mb-2 bg-white dark:bg-slate-800">
-                <p className="font-medium">User: {u.name} ({u.email})</p>
-                <div className="mt-2 text-sm bg-red-50 dark:bg-red-900/20 p-2 rounded">
-                  <strong>Reports:</strong>
-                  {u.reportsReceived.map((r, i) => (
-                    <div key={i}>- {r.reason} (by {r.reporterId?.name || "Unknown"})</div>
-                  ))}
-                </div>
-                <div className="mt-2">
-                  <button onClick={() => banUser(u._id)} className="text-xs bg-orange-100 text-orange-700 px-2 py-1 rounded">Ban User</button>
-                </div>
+            {archivedPosts.length === 0 && (
+              <div className="p-12 text-center bg-white dark:bg-slate-900 rounded-2xl border border-dashed border-slate-300 dark:border-slate-700 text-slate-500">
+                No deleted or archived posts to show.
               </div>
-            ))}
+            )}
           </div>
-        </div>
-      )}
+        )}
 
+      </main>
     </div>
   );
 }
