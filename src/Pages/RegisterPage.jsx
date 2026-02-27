@@ -76,16 +76,16 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="max-w-md mx-auto mt-28 p-6 border rounded-lg bg-white dark:bg-slate-800 dark:border-slate-700">
+    <div className="max-w-md mx-auto mt-28 p-6 border rounded-lg bg-slate-800 border-slate-700">
       <h1 className="text-xl font-semibold mb-4">Create account</h1>
 
       {/* Role Selection Tabs */}
-      <div className="flex bg-slate-100 dark:bg-slate-900/50 p-1 rounded-xl mb-6">
+      <div className="flex bg-slate-900/50 p-1 rounded-xl mb-6">
         <button
           onClick={() => setRole("Student")}
           className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all ${role === "Student"
-            ? "bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 shadow-sm"
-            : "text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
+            ? "bg-slate-800 text-indigo-400 shadow-sm"
+            : "text-slate-500 hover:text-slate-300"
             }`}
         >
           Student
@@ -93,23 +93,23 @@ export default function RegisterPage() {
         <button
           onClick={() => setRole("Teacher")}
           className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all ${role === "Teacher"
-            ? "bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 shadow-sm"
-            : "text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
+            ? "bg-slate-800 text-indigo-400 shadow-sm"
+            : "text-slate-500 hover:text-slate-300"
             }`}
         >
           Teacher
         </button>
       </div>
 
-      {error && <div className="mb-3 text-sm text-red-500 bg-red-50 dark:bg-red-900/20 p-2 rounded">{error}</div>}
-      {msg && <div className="mb-3 text-sm text-green-600 bg-green-50 dark:bg-green-900/20 p-2 rounded">{msg}</div>}
+      {error && <div className="mb-3 text-sm text-red-500 bg-red-900/20 p-2 rounded">{error}</div>}
+      {msg && <div className="mb-3 text-sm text-green-400 bg-green-900/20 p-2 rounded">{msg}</div>}
 
       {!msg && (
         <form onSubmit={handleSubmit} className="flex flex-col gap-3">
 
           {/* Avatar Upload */}
           <div className="flex flex-col items-center mb-4">
-            <div className="relative w-24 h-24 rounded-full overflow-hidden bg-slate-100 border border-slate-200">
+            <div className="relative w-24 h-24 rounded-full overflow-hidden bg-slate-900 border border-slate-700">
               {avatarPreview ? (
                 <img src={avatarPreview} alt="Preview" className="w-full h-full object-cover" />
               ) : (
@@ -127,7 +127,7 @@ export default function RegisterPage() {
           <div>
             <label className="text-sm block mb-1">Name</label>
             <input
-              className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all"
+              className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all"
               value={form.name}
               onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
               required
@@ -139,7 +139,7 @@ export default function RegisterPage() {
             <div>
               <label className="text-sm block mb-1">Username</label>
               <input
-                className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all"
+                className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all"
                 value={form.username}
                 onChange={e => setForm(f => ({ ...f, username: e.target.value.replace(/\s+/g, '').toLowerCase() }))}
                 required
@@ -152,7 +152,7 @@ export default function RegisterPage() {
             <div>
               <label className="text-sm block mb-1">Course</label>
               <select
-                className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all"
+                className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all"
                 value={form.course}
                 onChange={e => setForm(f => ({ ...f, course: e.target.value }))}
               >
@@ -168,7 +168,7 @@ export default function RegisterPage() {
           <div>
             <label className="text-sm block mb-1">Mobile Number</label>
             <input
-              className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all"
+              className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all"
               value={form.mobileNumber}
               onChange={e => setForm(f => ({ ...f, mobileNumber: e.target.value }))}
               required
@@ -179,7 +179,7 @@ export default function RegisterPage() {
           <div>
             <label className="text-sm block mb-1">Institute's ID Card Number</label>
             <input
-              className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all"
+              className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all"
               value={form.idCardNumber}
               onChange={e => setForm(f => ({ ...f, idCardNumber: e.target.value }))}
               required
@@ -191,7 +191,7 @@ export default function RegisterPage() {
             <div>
               <label className="text-sm font-medium block mb-1.5 ml-1">Email</label>
               <input
-                className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all"
+                className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all"
                 value={form.email}
                 onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
                 type="email"
@@ -204,7 +204,7 @@ export default function RegisterPage() {
           <div>
             <label className="text-sm font-medium block mb-1.5 ml-1">Password</label>
             <input
-              className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all"
+              className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all"
               value={form.password}
               onChange={e => setForm(f => ({ ...f, password: e.target.value }))}
               type="password"

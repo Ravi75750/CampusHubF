@@ -36,14 +36,14 @@ export default function LoginPage({ isModal }) {
 
   return (
     <div className={`max-w-md mx-auto ${isModal ? '' : 'pt-32 pb-12 p-6'}`}>
-      <div className={`${isModal ? '' : 'p-6 border rounded-lg bg-white dark:bg-slate-800 dark:border-slate-700 shadow-lg'}`}>
-        <h1 className="text-xl font-semibold mb-4 text-black">Login</h1>
+      <div className={`${isModal ? '' : 'p-6 border rounded-lg bg-slate-800 border-slate-700 shadow-lg'}`}>
+        <h1 className="text-xl font-semibold mb-4 text-white">Login</h1>
         {error && <div className="mb-3 text-sm text-red-500">{error}</div>}
         <form onSubmit={handleSubmit} className="flex flex-col gap-3">
           <div>
-            <label className="text-sm block mb-1 text-black font-semibold">Email, Mobile, or ID</label>
+            <label className="text-sm block mb-1 text-slate-300 font-semibold">Email, Mobile, or ID</label>
             <input
-              className="w-full border rounded px-3 py-2 text-sm bg-slate-50 dark:bg-slate-900 dark:border-slate-600"
+              className="w-full border rounded px-3 py-2 text-sm bg-slate-900 border-slate-600 text-white"
               value={form.email}
               onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
               type="text"
@@ -52,9 +52,9 @@ export default function LoginPage({ isModal }) {
             />
           </div>
           <div>
-            <label className="text-sm block mb-1 text-black font-semibold">Password</label>
+            <label className="text-sm block mb-1 text-slate-300 font-semibold">Password</label>
             <input
-              className="w-full border rounded px-3 py-2 text-sm bg-slate-50 dark:bg-slate-900 dark:border-slate-600"
+              className="w-full border rounded px-3 py-2 text-sm bg-slate-900 border-slate-600 text-white"
               value={form.password}
               onChange={e => setForm(f => ({ ...f, password: e.target.value }))}
               type="password"
