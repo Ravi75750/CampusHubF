@@ -165,7 +165,7 @@ export default function Navbar({ transparent }) {
           {/* Logo */}
           <Link to={user ? "/feed" : "/"} className="flex items-center space-x-1">
 
-            <span className={`font-bold text-[40px] ${isLanding ? "text-[#ffffff]" : "text-white"}`} style={{ fontFamily: "'Blinker', sans-serif" }}>
+            <span className={`text-[40px] ${isLanding ? "text-[#CFF4FF]" : "text-[#CFF4FF]"}`} style={{ fontFamily: "'Tourney', sans-serif", fontWeight: 800, fontStyle: 'italic' }}>
               CampusHub
             </span>
           </Link>
