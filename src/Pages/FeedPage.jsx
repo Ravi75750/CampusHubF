@@ -30,7 +30,7 @@ export default function FeedPage() {
 
   // Create Post State
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [newPost, setNewPost] = useState({ text: "", image: null });
+  const [newPost, setNewPost] = useState({ text: "", image: null, visibility: "Anyone" });
 
   // Interaction State
   // Interaction State
@@ -88,6 +88,7 @@ export default function FeedPage() {
 
     const formData = new FormData();
     formData.append("text", newPost.text);
+    formData.append("visibility", newPost.visibility || "Anyone");
     if (newPost.image) {
       formData.append("image", newPost.image);
     }
@@ -96,7 +97,7 @@ export default function FeedPage() {
       await api.post("/posts", formData, {
         headers: { "Content-Type": "multipart/form-data" }
       });
-      setNewPost({ text: "", image: null });
+      setNewPost({ text: "", image: null, visibility: "Anyone" });
       setIsCreateModalOpen(false); // Close modal
       setRefresh(prev => prev + 1);
     } catch (err) {
@@ -238,9 +239,9 @@ export default function FeedPage() {
       <div className="max-w-7xl 3xl:max-w-[1600px] 4xl:max-w-[2000px] 5xl:max-w-[2800px] mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-24">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
 
-          {/* Left Sidebar - Profile Summary */}
-          {user.role !== 'Admin' && (
-            <div className="hidden lg:block lg:col-span-1 space-y-6">
+          {/* Left Sidebar - Profile Summary or Spacer */}
+          <div className="hidden lg:block lg:col-span-1 space-y-6">
+            {user.role !== 'Admin' && (
               <div className="bg-black/40 backdrop-blur-xl p-6 rounded-2xl sticky top-24 border border-white/10 shadow-xl shadow-white/20">
                 <div className="flex flex-col items-center text-center">
                   <div className="w-24 h-24 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 p-[2px] mb-4">
@@ -272,8 +273,8 @@ export default function FeedPage() {
                   </Link>
                 </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
 
           {/* Mobile Profile Summary (Visible only on small screens) */}
           {user.role !== 'Admin' && (
@@ -391,9 +392,14 @@ export default function FeedPage() {
                 />
                 <div>
                   <h3 className="font-bold text-slate-900 dark:text-white">{user.name}</h3>
-                  <button className="text-xs font-medium text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700 rounded-full px-2 py-0.5 mt-1 flex items-center gap-1 hover:bg-slate-50 dark:hover:bg-slate-800">
-                    🌎 Anyone ▾
-                  </button>
+                  <select
+                    value={newPost.visibility || 'Anyone'}
+                    onChange={(e) => setNewPost({ ...newPost, visibility: e.target.value })}
+                    className="text-xs font-medium text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700 rounded-full px-2 py-0.5 mt-1 flex items-center gap-1 hover:bg-slate-50 dark:hover:bg-slate-800 bg-transparent outline-none cursor-pointer appearance-none"
+                  >
+                    <option value="Anyone">🌎 Anyone</option>
+                    <option value="Friends Only">👥 Friends Only</option>
+                  </select>
                 </div>
               </div>
 

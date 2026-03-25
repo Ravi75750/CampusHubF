@@ -1,10 +1,26 @@
 
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import LoginPage from './LoginPage';
+import { api } from '../api.js';
 
 const LandingPage = () => {
     const [showLogin, setShowLogin] = useState(false);
+    const [bgImage, setBgImage] = useState('/Homebg.jpg');
+
+    useEffect(() => {
+        const fetchSettings = async () => {
+            try {
+                const res = await api.get('/public/settings');
+                if (res.data && res.data.landingPageImage) {
+                    setBgImage(res.data.landingPageImage);
+                }
+            } catch (error) {
+                console.error("Failed to fetch landing page settings", error);
+            }
+        };
+        fetchSettings();
+    }, []);
 
     const handleExplore = () => {
         setShowLogin(true);
@@ -17,7 +33,7 @@ const LandingPage = () => {
             <div
                 className="absolute inset-0 z-0"
                 style={{
-                    backgroundImage: `url('/Homebg.jpg')`,
+                    backgroundImage: `url('${bgImage}')`,
                     backgroundSize: 'cover',
                     backgroundPosition: 'center',
                     filter: showLogin

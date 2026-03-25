@@ -165,7 +165,7 @@ export default function Navbar({ transparent }) {
           {/* Logo */}
           <Link to={user ? "/feed" : "/"} className="flex items-center space-x-1">
 
-            <span className={`font-bold text-[40px] ${isLanding ? "text-[#ffffff]" : "text-white"}`}>
+            <span className={`font-bold text-[40px] ${isLanding ? "text-[#ffffff]" : "text-white"}`} style={{ fontFamily: "'Blinker', sans-serif" }}>
               CampusHub
             </span>
           </Link>
@@ -178,6 +178,7 @@ export default function Navbar({ transparent }) {
                 ? "text-white text-[20px] hover:text-white"
                 : "text-slate-600 dark:text-slate-300 hover:text-indigo-600"
                 }`}
+              style={{ fontFamily: "'Blinker', sans-serif" }}
             >
               Feed
             </Link>
@@ -188,6 +189,7 @@ export default function Navbar({ transparent }) {
                 ? "text-white text-[20px] hover:text-white"
                 : "text-slate-600 dark:text-slate-300 hover:text-indigo-600"
                 }`}
+              style={{ fontFamily: "'Blinker', sans-serif" }}
             >
               Events
             </Link>
@@ -437,6 +439,7 @@ export default function Navbar({ transparent }) {
                 to="/feed"
                 onClick={() => setMobileMenuOpen(false)}
                 className="flex items-center gap-3 px-4 py-3 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg font-medium transition-colors"
+                style={{ fontFamily: "'Blinker', sans-serif" }}
               >
                 <span className="text-xl">🏠</span> Feed
               </Link>
@@ -444,6 +447,7 @@ export default function Navbar({ transparent }) {
                 to="/events"
                 onClick={() => setMobileMenuOpen(false)}
                 className="flex items-center gap-3 px-4 py-3 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg font-medium transition-colors"
+                style={{ fontFamily: "'Blinker', sans-serif" }}
               >
                 <span className="text-xl">📅</span> Events
               </Link>
@@ -451,6 +455,7 @@ export default function Navbar({ transparent }) {
                 to={`/profile/${user?.id}`}
                 onClick={() => setMobileMenuOpen(false)}
                 className="flex items-center gap-3 px-4 py-3 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg font-medium transition-colors"
+                style={{ fontFamily: "'Blinker', sans-serif" }}
               >
                 <span className="text-xl">👤</span> My Profile
               </Link>
