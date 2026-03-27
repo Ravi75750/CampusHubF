@@ -373,10 +373,12 @@ export default function ProfilePage() {
                   <div className="font-bold text-slate-900 dark:text-white">Joined</div>
                   <div className="text-slate-600 dark:text-slate-400 text-sm">{new Date(profileUser.createdAt || Date.now()).toLocaleDateString()}</div>
                 </div>
-                <div>
-                  <div className="font-bold text-slate-900 dark:text-white">Email</div>
-                  <div className="text-slate-600 dark:text-slate-400 text-sm">{profileUser.email}</div>
-                </div>
+                {profileUser.email && (
+                  <div>
+                    <div className="font-bold text-slate-900 dark:text-white">Email</div>
+                    <div className="text-slate-600 dark:text-slate-400 text-sm">{profileUser.email}</div>
+                  </div>
+                )}
                 {profileUser.mobileNumber && (
                   <div>
                     <div className="font-bold text-slate-900 dark:text-white">Mobile Number</div>
